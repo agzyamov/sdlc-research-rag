@@ -1,6 +1,6 @@
 # Spec: README demo (silent)
 
-- 1920×1080, 30 fps, 30 s, no audio (by request). The README shows a GIF that links to the MP4.
+- 1920×1080, 30 fps, 30 s, no audio (by request). The README plays the MP4 (uploaded as a GitHub attachment).
 - Real app frames only: `web/capture/demo.capture.ts` (Playwright, live stack, light theme, DPR 2) writes `assets/capture/*.jpg` and `capture.json` (click-target boxes). Counts on screen are whatever the live corpus returns.
 - Screen inset at 90% on a #e7e8ea ground, radius 18 px, soft shadow.
 - Camera: scale 1–1.85, `power2.inOut`, 0.7–1.0 s per move. Cursor: 48 px arrow, `power3.inOut` moves, press 0.82 → 1, orange (#e8590c) ripple; adapted from registry `cursor-zoom-follow`.

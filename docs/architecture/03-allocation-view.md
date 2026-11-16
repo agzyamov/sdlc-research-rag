@@ -67,7 +67,7 @@ Outside the application package:
 | Path | Purpose |
 |---|---|
 | `docs/architecture/` | this documentation (`generated/` is produced by `tools/gen_diagrams.py`) |
-| `docs/media/` | README demo: `demo.mp4`, `demo.gif`, and the HyperFrames project in `demo/` that renders them from real app frames (captured by `web/capture/`, never run in CI) |
+| `docs/media/` | README demo: `demo.mp4` (also uploaded as a GitHub attachment, which the README plays) and the HyperFrames project in `demo/` that renders them from real app frames (captured by `web/capture/`, never run in CI) |
 | `data/` | dataset definition and local corpus |
 | `eval/` | golden set and reports |
 | `infra/` | service configuration (OpenFGA model) |

@@ -2,15 +2,11 @@
 
 [![CI](https://github.com/agzyamov/sdlc-research-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/agzyamov/sdlc-research-rag/actions/workflows/ci.yml) [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE) ![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)
 
+A RAG app over **arXiv research on AI across the software development lifecycle**: LLMs and agents for requirements, design, coding, testing, code review, operations and maintenance. It answers questions with citations to papers, **extracts** structured facts (SDLC phase, technique, model, benchmark), **visualizes** the research landscape as charts and a knowledge graph, and **evaluates** its own answer quality.
 
 https://github.com/user-attachments/assets/0d324245-1e92-4281-b3dc-3b1749308376
 
-
-A RAG app over **arXiv research on AI across the software development lifecycle**: LLMs and agents for requirements, design, coding, testing, code review, operations and maintenance. It answers questions with citations to papers, **extracts** structured facts (SDLC phase, technique, model, benchmark), **visualizes** the research landscape as charts and a knowledge graph, and **evaluates** its own answer quality.
-
-[![Walkthrough: ask a question and get an answer that cites arXiv papers, see what the research covers and how papers connect, then open the papers behind a number and the quote behind a tag](docs/media/demo.gif)](docs/media/demo.mp4)
-
-*30-second walkthrough, no sound; click for the full-resolution MP4. The chat answer in it is staged from the corpus's verified abstract quotes.*
+<sub>30-second walkthrough, no sound. The chat answer is staged from the corpus's verified abstract quotes.</sub>
 
 > Status: working end to end on a 20-paper corpus (the newest matching arXiv papers). Evaluation results: [eval/README.md](eval/README.md).
 
