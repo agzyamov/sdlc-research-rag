@@ -6,6 +6,10 @@ updates:
     groups:
       python-deps: { patterns: ["*"] }
     commit-message: { prefix: "build(deps)" }
+    ignore:
+      # docling caps typer <0.28; drop this when docling lifts the cap
+      - dependency-name: typer
+        versions: [">=0.28"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
