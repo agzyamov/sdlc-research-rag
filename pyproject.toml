@@ -1,0 +1,139 @@
+[project]
+name = "sdlcrag"
+version = "0.1.0"
+description = "SDLC Research RAG: question answering, fact extraction and visualization over arXiv research on AI in the software lifecycle"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Rustem Agziamov" }]
+keywords = ["rag", "arxiv", "software-engineering", "llm", "knowledge-graph", "langgraph", "claude"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "assistant-stream[langgraph]>=0.0.38",
+    "dagster>=1.13.30",
+    "dagster-webserver>=1.13.30",
+    "deepeval>=4.3.4",
+    "docling>=2.150.1",
+    "fastapi>=0.163.1",
+    "fastembed>=0.9.1",
+    "greenlet>=3.5.6",
+    "httpx>=0.28.1",
+    "langchain>=1.5.0",
+    "langchain-anthropic>=1.7.10",
+    "langchain-classic>=1.0.8",
+    "langchain-community>=0.4.2",
+    "langchain-core>=1.8.1",
+    "langchain-docling>=3.0.0",
+    "langchain-huggingface>=1.2.3",
+    "langchain-openai>=1.8.0",
+    "langchain-qdrant>=1.1.0",
+    "langfuse>=5.2.0",
+    "langgraph>=1.2.22",
+    "neo4j-graphrag[fuzzy-matching]>=1.24.0",
+    "networkx>=3.7",
+    "oaipmh-scythe>=0.17.0",
+    "openfga-sdk>=0.10.6",
+    "pydantic>=2.14.3",
+    "pydantic-settings>=2.16.3",
+    "pyrate-limiter>=4.5.1",
+    "pyyaml>=6.0.3",
+    "qdrant-client>=1.20.0",
+    "sentence-transformers>=6.3.0",
+    "typer>=0.27.3",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/agzyamov/sdlc-research-rag"
+Issues = "https://github.com/agzyamov/sdlc-research-rag/issues"
+Documentation = "https://github.com/agzyamov/sdlc-research-rag/tree/main/docs/architecture"
+[project.scripts]
+sdlcrag = "sdlcrag.cli.main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sdlcrag"]
+
+# ---------------------------------------------------------------- tooling
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "N", "PL"]
+# PLC0415: lazy imports are intentional for heavy/optional deps (models, Langfuse)
+ignore = ["PLR0913", "PLC0415"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["PLR2004"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "uv"
+tag_format = "v$version"
+update_changelog_on_bump = true
+major_version_zero = true
+
+[tool.pyrefly]
+project-includes = ["src", "tests"]
+python-version = "3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -m 'not integration and not eval'"  # opt in with -m integration / -m eval
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+  "eval: RAG evaluation tests (call the LLM judge; slow, need ANTHROPIC_API_KEY)",
+  "integration: need docker services (qdrant, openfga)",
+]
+
+# ------------------------------------------------- Module View quality gate
+# Executable form of docs/architecture/01-module-view.md (layered style, relaxed:
+# a module may use any module in a LOWER layer, never a higher one).
+# "|" = siblings that must NOT import each other.
+[tool.importlinter]
+root_package = "sdlcrag"
+
+[[tool.importlinter.contracts]]
+name = "Module View: layered uses-rules"
+type = "layers"
+layers = [
+  "sdlcrag.cli | sdlcrag.api",
+  "sdlcrag.orchestration",
+  "sdlcrag.evaluation",
+  "sdlcrag.generation | sdlcrag.extraction | sdlcrag.ingestion",
+  "sdlcrag.retrieval | sdlcrag.visualization",
+  "sdlcrag.access",
+  "sdlcrag.indexing",
+  "sdlcrag.providers",
+  "sdlcrag.core",
+]
+
+[[tool.importlinter.contracts]]
+name = "Visualization depends only on core domain models"
+type = "forbidden"
+source_modules = ["sdlcrag.visualization"]
+forbidden_modules = [
+  "sdlcrag.access",
+  "sdlcrag.indexing",
+  "sdlcrag.providers",
+]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4.19.3",
+    "import-linter>=2.16",
+    "pre-commit>=4.7.0",
+    "pyrefly>=1.4.1",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+]

@@ -1,0 +1,64 @@
+# OpenFGA store: authorization model, base memberships and authorization tests.
+#   create/import:  infra/openfga/bootstrap.sh
+#   test (no server needed):  docker run --rm -v "$PWD/infra/openfga:/work" openfga/cli:v0.9.0 model test --tests /work/store.fga.yaml
+# Per-paper tuples (paper → license collection) are written by the ingestion pipeline.
+name: sdlcrag
+model_file: ./model.fga
+
+tuples:
+  # Open-licensed papers: readable by everyone (including anonymous/public users)
+  - user: user:*
+    relation: reader
+    object: collection:open
+  # arXiv non-exclusive papers: internal users only
+  - user: group:internal#member
+    relation: reader
+    object: collection:restricted
+  # Demo principals (see data/corpus.yaml): alice is public, bob and admin are internal
+  - user: user:bob
+    relation: member
+    object: group:internal
+  - user: user:admin
+    relation: member
+    object: group:internal
+
+tests:
+  - name: license-aware paper access
+    tuples:
+      - user: collection:open
+        relation: collection
+        object: paper:2611.00001
+      - user: collection:restricted
+        relation: collection
+        object: paper:2611.00002
+      - user: user:alice
+        relation: reader
+        object: paper:2611.00003   # explicit per-paper sharing
+      - user: collection:restricted
+        relation: collection
+        object: paper:2611.00003
+    check:
+      - user: user:alice
+        object: paper:2611.00001
+        assertions: { can_read: true }
+      - user: user:alice
+        object: paper:2611.00002
+        assertions: { can_read: false }
+      - user: user:alice
+        object: paper:2611.00003
+        assertions: { can_read: true }
+      - user: user:bob
+        object: paper:2611.00002
+        assertions: { can_read: true }
+      - user: user:anyone-else
+        object: paper:2611.00002
+        assertions: { can_read: false }
+    list_objects:
+      - user: user:alice
+        type: paper
+        assertions:
+          can_read: [paper:2611.00001, paper:2611.00003]
+      - user: user:bob
+        type: paper
+        assertions:
+          can_read: [paper:2611.00001, paper:2611.00002, paper:2611.00003]

@@ -1,0 +1,173 @@
+<!doctype html>
+<!--
+  Walkthrough: real app frames (captured by web/capture/demo.capture.ts into
+  assets/capture/, coordinates in assets/capture/capture.json) inside a camera, with a cursor
+  that clicks where the capture clicked. Cursor arrow, press and ripple adapted from the
+  registry component cursor-zoom-follow (hyperframes add cursor-zoom-follow). Coordinates are 1920x1080 app pixels.
+-->
+<html lang="en" data-composition-id="walkthrough" data-composition-duration="23">
+  <body>
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: #ffffff;
+        }
+        .cam {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 1920px;
+          height: 1080px;
+          transform-origin: 0 0;
+        }
+        .frame {
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          object-fit: cover;
+        }
+        .mark {
+          position: absolute;
+          border-radius: 10px;
+          box-shadow: 0 0 0 4px #e8590c;
+          opacity: 0;
+        }
+        #f-answer { clip-path: inset(0px 0px 890px 0px); }
+        .ripple {
+          position: absolute;
+          width: 72px;
+          height: 72px;
+          margin: -36px 0 0 -36px;
+          border-radius: 50%;
+          border: 3px solid #e8590c;
+          opacity: 0;
+        }
+        .cursor {
+          position: absolute;
+          left: -10px;
+          top: -6px;
+          width: 48px;
+          height: 48px;
+          transform-origin: 10px 6px;
+          opacity: 0;
+          filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+        }
+        .cursor path {
+          fill: #ffffff;
+          stroke: #141414;
+          stroke-width: 1.4;
+          stroke-linejoin: round;
+        }
+      </style>
+
+      <div id="root" data-composition-id="walkthrough" data-duration="23">
+        <div class="cam" id="cam">
+          <img id="f-chat" class="frame clip" src="assets/capture/000.jpg" alt="" data-start="0" data-duration="0.9" />
+          <img id="f-t1" class="frame clip" src="assets/capture/001.jpg" alt="" data-start="0.9" data-duration="0.22" />
+          <img id="f-t2" class="frame clip" src="assets/capture/002.jpg" alt="" data-start="1.12" data-duration="0.22" />
+          <img id="f-t3" class="frame clip" src="assets/capture/003.jpg" alt="" data-start="1.34" data-duration="0.22" />
+          <img id="f-t4" class="frame clip" src="assets/capture/004.jpg" alt="" data-start="1.56" data-duration="0.22" />
+          <img id="f-t5" class="frame clip" src="assets/capture/005.jpg" alt="" data-start="1.78" data-duration="0.22" />
+          <img id="f-t6" class="frame clip" src="assets/capture/006.jpg" alt="" data-start="2.0" data-duration="0.22" />
+          <img id="f-t7" class="frame clip" src="assets/capture/007.jpg" alt="" data-start="2.22" data-duration="0.22" />
+          <img id="f-t8" class="frame clip" src="assets/capture/008.jpg" alt="" data-start="2.44" data-duration="0.56" />
+          <img id="f-sent" class="frame clip" src="assets/capture/009.jpg" alt="" data-start="3.0" data-duration="5.3" />
+          <img id="f-answer" class="frame clip" src="assets/capture/010.jpg" alt="" data-start="3.4" data-duration="4.9" />
+          <img id="f-landscape" class="frame clip" src="assets/capture/011.jpg" alt="" data-start="8.3" data-duration="3.9" />
+          <img id="f-graph" class="frame clip" src="assets/capture/012.jpg" alt="" data-start="12.2" data-duration="4.1" />
+          <img id="f-landscape-2" class="frame clip" src="assets/capture/011.jpg" alt="" data-start="16.3" data-duration="1.2" />
+          <img id="f-testing" class="frame clip" src="assets/capture/013.jpg" alt="" data-start="17.5" data-duration="2.1" />
+          <img id="f-evidence" class="frame clip" src="assets/capture/014.jpg" alt="" data-start="19.6" data-duration="3.4" />
+
+          <!-- highlights on captured element boxes (capture.json targets) -->
+          <div id="mark-sources" class="mark" style="left: 622px; top: 342px; width: 584px; height: 34px"></div>
+          <div id="mark-quote" class="mark" style="left: 1193px; top: 411px; width: 378px; height: 48px"></div>
+
+          <div id="ripple" class="ripple"></div>
+          <svg id="cursor" class="cursor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 3 L5 19 L9 15 L12 22 L15 20.5 L11.5 14 L18 14 Z" />
+          </svg>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const W = 1920, H = 1080;
+          const tl = gsap.timeline({ paused: true });
+          const cam = document.getElementById("cam");
+          const cursor = document.getElementById("cursor");
+          const ripple = document.getElementById("ripple");
+          const $ = (id) => document.getElementById(id);
+
+          function camTo(t, s, fx, fy, dur, ease) {
+            const x = Math.min(0, Math.max(W - W * s, W / 2 - fx * s));
+            const y = Math.min(0, Math.max(H - H * s, H / 2 - fy * s));
+            tl.to(cam, { scale: s, x: x, y: y, duration: dur, ease: ease || "power2.inOut" }, t);
+          }
+          function moveTo(t, x, y, dur) {
+            tl.to(cursor, { x: x, y: y, duration: dur, ease: "power3.inOut" }, t);
+          }
+          function click(t, x, y) {
+            tl.to(cursor, { scale: 0.82, duration: 0.08, ease: "power2.out" }, t);
+            tl.to(cursor, { scale: 1, duration: 0.22, ease: "expo.out" }, t + 0.08);
+            tl.set(ripple, { x: x, y: y }, t);
+            tl.fromTo(ripple, { scale: 0.3, opacity: 0.85 }, { scale: 1.4, opacity: 0, duration: 0.55, ease: "expo.out" }, t);
+          }
+          function mark(t, el, hold) {
+            tl.fromTo(el, { opacity: 0, scale: 1.08 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, t);
+            tl.to(el, { opacity: 0, duration: 0.3, ease: "power2.in" }, t + hold);
+          }
+
+          tl.set(cam, { scale: 1, x: 0, y: 0 }, 0);
+          tl.set(cursor, { x: 1500, y: 900 }, 0);
+          tl.to(cursor, { opacity: 1, duration: 0.3, ease: "power2.out" }, 0.2);
+
+          // 1. Ask: type into the composer, send; the answer streams in (wipe), sources highlighted
+          moveTo(0.2, 900, 588, 0.6);
+          click(0.85, 900, 588);
+          camTo(0.5, 1.6, 960, 560, 0.9);
+          moveTo(2.4, 1273, 632, 0.5);
+          click(3.0, 1273, 632);
+          tl.to(cursor, { opacity: 0, duration: 0.25, ease: "power2.in" }, 3.2);
+          camTo(3.0, 1.75, 960, 290, 0.8);
+          tl.to($("f-answer"), { clipPath: "inset(0px 0px 0px 0px)", duration: 1.6, ease: "none" }, 3.4);
+          mark(5.4, $("mark-sources"), 1.7);
+          camTo(7.2, 1, 960, 540, 0.8);
+
+          // 2. Landscape at a glance
+          tl.set(cursor, { x: 700, y: 500 }, 7.3);
+          tl.to(cursor, { opacity: 1, duration: 0.25, ease: "power2.out" }, 7.35);
+          moveTo(7.4, 107, 73, 0.7);
+          click(8.2, 107, 73);
+          camTo(8.6, 1.12, 960, 420, 3.2, "sine.inOut");
+
+          // 3. Graph at a glance
+          camTo(11.6, 1, 960, 540, 0.5);
+          moveTo(11.3, 214, 73, 0.7);
+          click(12.1, 214, 73);
+          camTo(12.6, 1.18, 1430, 640, 3.0, "sine.inOut");
+
+          // 4. Check a claim: a number opens its papers, a tag shows its quote
+          camTo(15.6, 1, 960, 540, 0.5);
+          moveTo(15.5, 107, 73, 0.6);
+          click(16.2, 107, 73);
+          moveTo(16.5, 430, 329, 0.8);
+          click(17.4, 430, 329);
+          camTo(17.7, 1.35, 1440, 420, 0.9);
+          moveTo(18.5, 1323, 384, 0.8);
+          click(19.5, 1323, 384);
+          camTo(19.7, 1.85, 1385, 440, 0.8);
+          mark(20.5, $("mark-quote"), 2.0);
+          tl.to(cursor, { opacity: 0, duration: 0.3, ease: "power2.in" }, 21.2);
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["walkthrough"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

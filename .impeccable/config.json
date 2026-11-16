@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-11-16T11:33:32.172Z",
+        "reason": "agent decision: README demo title/end cards use the product's own typeface (web/src/index.css --font-sans Geist) to match the captured app frames"
+      }
+    ]
+  }
+}

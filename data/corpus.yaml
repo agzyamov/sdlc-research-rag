@@ -1,0 +1,54 @@
+# Corpus definition consumed by sdlcrag.ingestion (ADR-0013).
+# Source: arXiv (https://arxiv.org); metadata snapshot also on Kaggle:
+#   https://www.kaggle.com/datasets/Cornell-University/arxiv
+# Initial load: arXiv search API / Kaggle metadata. Updates: OAI-PMH ListRecords (set=cs, from=<last sync>).
+
+filter:
+  categories: [cs.SE]          # primary or cross-listed
+  since: 2023-01-01
+  # A paper is in scope if its title or abstract matches any keyword (case-insensitive).
+  keywords:
+    - large language model
+    - language model
+    - LLM
+    - foundation model
+    - GPT
+    - agent
+    - agentic
+    - copilot
+    - code generation
+    - generative AI
+    - retrieval-augmented
+
+# Rolling window: keep the newest papers that match the filter (by first-submitted date).
+# Daily updates add new papers; papers that fall out of the window are deleted from the
+# index (exercises incremental delete). Corpus: 20 papers (token budget); dev slice 20.
+window:
+  max_papers: 20               # the corpus; a larger window costs gateway tokens per paper
+  dev_max_papers: 20           # `sdlcrag ingest --dev`: small corpus to verify every step
+
+# Access control derived from each paper's license (OpenFGA, infra/openfga/model.fga).
+# open:       anyone, including anonymous/public users
+# restricted: only members of group:internal (arXiv's non-exclusive license does not
+#             allow redistribution, so full text is shown to internal users only)
+license_policy:
+  open:
+    - http://creativecommons.org/licenses/by/4.0/
+    - http://creativecommons.org/licenses/by-sa/4.0/
+    - http://creativecommons.org/licenses/by-nc-sa/4.0/
+    - http://creativecommons.org/licenses/by-nc-nd/4.0/
+    - http://creativecommons.org/publicdomain/zero/1.0/
+  restricted:
+    - http://arxiv.org/licenses/nonexclusive-distrib/1.0/
+  default: restricted          # unknown or missing license
+
+# Demo principals for the access-control feature
+principals:
+  - id: alice
+    description: public user; sees open-licensed papers only
+  - id: bob
+    description: internal researcher (group:internal); sees all papers
+    groups: [internal]
+  - id: admin
+    description: internal administrator
+    groups: [internal]

@@ -1,0 +1,2 @@
+# False positive: env var NAME (ANTHROPIC_API_KEY) in pydantic AliasChoices, not a secret
+5783848e644f6997ca857921b1f257fc651ae8fd:src/rag10k/core/config.py:generic-api-key:21

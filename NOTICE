@@ -1,0 +1,18 @@
+SDLC Research RAG
+Copyright 2026 Rustem Agziamov
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This repository includes third-party material under its own license:
+
+- web/src/components/tremor/bar-list.tsx: adapted from Tremor (tremor.so), Apache License 2.0.
+  Changes are listed in the file header.
+- web/src/components/ui/ and web/src/components/assistant-ui/: generated from the shadcn/ui
+  and assistant-ui registries, MIT License.
+- docs/media/demo/assets/fonts/geist.woff2: Geist by the Geist Project Authors, SIL Open Font
+  License 1.1 (docs/media/demo/assets/fonts/OFL.txt).
+- docs/media/demo/compositions/walkthrough.html: cursor and click-ripple code adapted from the
+  HyperFrames registry component cursor-zoom-follow, Apache License 2.0.
+
+Research papers are not part of this repository. The app downloads them from arXiv at run time
+and keeps them under each paper's own license (see data/README.md).

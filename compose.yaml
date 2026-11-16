@@ -1,0 +1,213 @@
+# Local runtime (Colima or any Docker engine). See docs/architecture/03-allocation-view.md.
+#   core:           docker compose up -d qdrant neo4j openfga
+#   observability:  docker compose --profile observability up -d
+# Default credentials below are for LOCAL DEVELOPMENT ONLY.
+
+services:
+  # ------------------------------------------------------------ vector store
+  qdrant:
+    image: qdrant/qdrant:v1.20.1
+    restart: unless-stopped
+    ports:
+      # Host ports are overridable when another project already uses the defaults.
+      - 127.0.0.1:${QDRANT_HTTP_PORT:-6333}:6333   # REST + dashboard (/dashboard)
+      - 127.0.0.1:${QDRANT_GRPC_PORT:-6334}:6334   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ------------------------------------------------------------ knowledge graph
+  # Facts per paper (phases, techniques, models, benchmarks) with entity resolution by
+  # neo4j-graphrag (ADR-0018). APOC core is required by its resolvers (apoc.refactor.mergeNodes).
+  neo4j:
+    image: neo4j:2026.10.2-community
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/${SDLCRAG_NEO4J_PASSWORD:-sdlcrag-dev}
+      NEO4J_PLUGINS: '["apoc"]'
+    ports:
+      - 127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474   # Browser
+      - 127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687   # Bolt
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:7474 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # ------------------------------------------------------------ authorization
+  openfga-db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openfga
+      POSTGRES_PASSWORD: openfga
+      POSTGRES_DB: openfga
+    volumes:
+      - openfga_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openfga"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  openfga-migrate:
+    image: openfga/openfga:v1.22.1
+    command: migrate
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://openfga:openfga@openfga-db:5432/openfga?sslmode=disable
+    depends_on:
+      openfga-db:
+        condition: service_healthy
+
+  openfga:
+    image: openfga/openfga:v1.22.1
+    restart: unless-stopped
+    command: run
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://openfga:openfga@openfga-db:5432/openfga?sslmode=disable
+      OPENFGA_PLAYGROUND_ENABLED: "false"   # port 3000 is reserved for Langfuse
+      # The 2k-paper corpus needs ListObjects to return more than the default 1000 papers.
+      OPENFGA_LIST_OBJECTS_MAX_RESULTS: "10000"
+    ports:
+      - 127.0.0.1:${OPENFGA_HTTP_PORT:-8080}:8080   # HTTP API
+      - 127.0.0.1:${OPENFGA_GRPC_PORT:-8081}:8081   # gRPC
+    depends_on:
+      openfga-migrate:
+        condition: service_completed_successfully
+
+  # ------------------------------------------------------------ observability (optional)
+  # Trimmed from https://github.com/langfuse/langfuse/blob/main/docker-compose.yml
+  langfuse-worker:
+    profiles: [observability]
+    image: langfuse/langfuse-worker:4.80
+    restart: unless-stopped
+    depends_on: &langfuse-depends-on
+      langfuse-db: { condition: service_healthy }
+      minio: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      clickhouse: { condition: service_healthy }
+    environment: &langfuse-env
+      NEXTAUTH_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@langfuse-db:5432/postgres
+      SALT: local-dev-salt
+      ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+      TELEMETRY_ENABLED: "false"
+      CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+      CLICKHOUSE_CLUSTER_ENABLED: "false"
+      LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+      LANGFUSE_S3_EVENT_UPLOAD_REGION: auto
+      LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: minio
+      LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: miniosecret
+      LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+      LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: langfuse
+      LANGFUSE_S3_MEDIA_UPLOAD_REGION: auto
+      LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: minio
+      LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: miniosecret
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://minio:9000
+      LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
+      LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: media/
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_AUTH: myredissecret
+
+  langfuse-web:
+    profiles: [observability]
+    image: langfuse/langfuse:4.80
+    restart: unless-stopped
+    depends_on: *langfuse-depends-on
+    ports:
+      - 127.0.0.1:3000:3000
+    environment:
+      <<: *langfuse-env
+      NEXTAUTH_SECRET: local-dev-secret
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://localhost:9090
+      LANGFUSE_S3_MEDIA_UPLOAD_INTERNAL_ENDPOINT: http://minio:9000
+
+  clickhouse:
+    profiles: [observability]
+    image: clickhouse/clickhouse-server:26.3.62.3
+    restart: unless-stopped
+    user: "101:101"
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
+    volumes:
+      - langfuse_clickhouse_data:/var/lib/clickhouse
+      - langfuse_clickhouse_logs:/var/log/clickhouse-server
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    profiles: [observability]
+    image: cgr.dev/chainguard/minio
+    restart: unless-stopped
+    entrypoint: sh
+    command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniosecret
+    ports:
+      - 127.0.0.1:9090:9000
+    volumes:
+      - langfuse_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    profiles: [observability]
+    image: redis:7
+    restart: unless-stopped
+    command: --requirepass myredissecret --maxmemory-policy noeviction
+    volumes:
+      - langfuse_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "myredissecret", "ping"]
+      interval: 3s
+      timeout: 10s
+      retries: 10
+
+  langfuse-db:
+    profiles: [observability]
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - langfuse_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  qdrant_data:
+  neo4j_data:
+  openfga_db_data:
+  langfuse_postgres_data:
+  langfuse_clickhouse_data:
+  langfuse_clickhouse_logs:
+  langfuse_minio_data:
+  langfuse_redis_data:

@@ -1,0 +1,877 @@
+{
+  "components": {
+    "schemas": {
+      "ChatRequest": {
+        "description": "assistant-ui data-stream request (extra fields such as `tools` are ignored).",
+        "properties": {
+          "messages": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Messages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "messages"
+        ],
+        "title": "ChatRequest",
+        "type": "object"
+      },
+      "DemoPrincipal": {
+        "description": "A demo user from data/corpus.yaml `principals` (selectable in the UI).",
+        "properties": {
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "groups": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Groups",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "DemoPrincipal",
+        "type": "object"
+      },
+      "EvalReport": {
+        "properties": {
+          "baseline_items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemResult"
+            },
+            "title": "Baseline Items",
+            "type": "array"
+          },
+          "baseline_summary": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Baseline Summary",
+            "type": "object"
+          },
+          "created": {
+            "title": "Created",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemResult"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "judge": {
+            "title": "Judge",
+            "type": "string"
+          },
+          "summary": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Summary",
+            "type": "object"
+          }
+        },
+        "required": [
+          "created",
+          "judge",
+          "summary",
+          "items"
+        ],
+        "title": "EvalReport",
+        "type": "object"
+      },
+      "FactEvidence": {
+        "description": "A verbatim quote from the abstract supporting one extracted fact (\"\" = none found).",
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quote": {
+            "default": "",
+            "title": "Quote",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "name"
+        ],
+        "title": "FactEvidence",
+        "type": "object"
+      },
+      "GraphData": {
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "total_papers": {
+            "title": "Total Papers",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_papers",
+          "nodes",
+          "edges"
+        ],
+        "title": "GraphData",
+        "type": "object"
+      },
+      "GraphEdge": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "target",
+          "label"
+        ],
+        "title": "GraphEdge",
+        "type": "object"
+      },
+      "GraphNode": {
+        "properties": {
+          "degree": {
+            "title": "Degree",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "label",
+          "degree"
+        ],
+        "title": "GraphNode",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ItemResult": {
+        "properties": {
+          "acl_leak": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acl Leak"
+          },
+          "answer": {
+            "title": "Answer",
+            "type": "string"
+          },
+          "cost_usd": {
+            "default": 0.0,
+            "title": "Cost Usd",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "input_tokens": {
+            "default": 0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "latency_s": {
+            "default": 0.0,
+            "title": "Latency S",
+            "type": "number"
+          },
+          "output_tokens": {
+            "default": 0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "principal": {
+            "title": "Principal",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "scores": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Scores",
+            "type": "object"
+          },
+          "source_hit": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Hit"
+          },
+          "sources": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "principal",
+          "answer",
+          "sources"
+        ],
+        "title": "ItemResult",
+        "type": "object"
+      },
+      "Landscape": {
+        "properties": {
+          "benchmarks": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "title": "Benchmarks",
+            "type": "array"
+          },
+          "corpus_papers": {
+            "title": "Corpus Papers",
+            "type": "integer"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "title": "Models",
+            "type": "array"
+          },
+          "sdlc_phases": {
+            "items": {
+              "$ref": "#/components/schemas/PhaseSlice"
+            },
+            "title": "Sdlc Phases",
+            "type": "array"
+          },
+          "techniques": {
+            "items": {
+              "$ref": "#/components/schemas/Slice"
+            },
+            "title": "Techniques",
+            "type": "array"
+          },
+          "total_papers": {
+            "title": "Total Papers",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_papers",
+          "corpus_papers",
+          "sdlc_phases",
+          "techniques",
+          "models",
+          "benchmarks"
+        ],
+        "title": "Landscape",
+        "type": "object"
+      },
+      "PaperSummary": {
+        "description": "A paper behind a chart slice, bar or graph node (drill-through).",
+        "properties": {
+          "benchmarks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Benchmarks",
+            "type": "array"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/FactEvidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "license_class": {
+            "title": "License Class",
+            "type": "string"
+          },
+          "models": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Models",
+            "type": "array"
+          },
+          "paper_id": {
+            "title": "Paper Id",
+            "type": "string"
+          },
+          "published": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published"
+          },
+          "sdlc_phases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sdlc Phases",
+            "type": "array"
+          },
+          "techniques": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Techniques",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "paper_id",
+          "title",
+          "url",
+          "license_class",
+          "published",
+          "evidence",
+          "sdlc_phases",
+          "techniques",
+          "models",
+          "benchmarks"
+        ],
+        "title": "PaperSummary",
+        "type": "object"
+      },
+      "PhaseSlice": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          }
+        },
+        "required": [
+          "phase",
+          "label",
+          "count"
+        ],
+        "title": "PhaseSlice",
+        "type": "object"
+      },
+      "Slice": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "count"
+        ],
+        "title": "Slice",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "SDLC Research RAG API",
+    "version": "1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/chat": {
+      "post": {
+        "description": "Answer the latest user message (single-turn RAG), streaming text then cited sources.",
+        "operationId": "chat",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Demo-User",
+            "required": true,
+            "schema": {
+              "title": "X-Demo-User",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Chat"
+      }
+    },
+    "/api/eval": {
+      "get": {
+        "description": "Latest evaluation report (written by `sdlcrag eval`); 404 before the first run.",
+        "operationId": "evaluation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvalReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Evaluation"
+      }
+    },
+    "/api/graph": {
+      "get": {
+        "description": "Knowledge graph of the papers this user may read (nodes with type and degree).",
+        "operationId": "graph",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Demo-User",
+            "required": true,
+            "schema": {
+              "title": "X-Demo-User",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphData"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Graph"
+      }
+    },
+    "/api/landscape": {
+      "get": {
+        "description": "Papers per SDLC phase (lifecycle order) and top techniques/models/benchmarks, over the\nreadable papers; optional filters cross-filter it (e.g. phase=testing).",
+        "operationId": "landscape",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "phase",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phase"
+            }
+          },
+          {
+            "in": "query",
+            "name": "technique",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Technique"
+            }
+          },
+          {
+            "in": "query",
+            "name": "model",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            }
+          },
+          {
+            "in": "query",
+            "name": "benchmark",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Benchmark"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Demo-User",
+            "required": true,
+            "schema": {
+              "title": "X-Demo-User",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Landscape"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Landscape"
+      }
+    },
+    "/api/papers": {
+      "get": {
+        "description": "Drill-through: the readable papers having every given fact (none = all readable);\n`paper` selects one readable paper by arXiv id.",
+        "operationId": "papers",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "phase",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Phase"
+            }
+          },
+          {
+            "in": "query",
+            "name": "technique",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Technique"
+            }
+          },
+          {
+            "in": "query",
+            "name": "model",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            }
+          },
+          {
+            "in": "query",
+            "name": "benchmark",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Benchmark"
+            }
+          },
+          {
+            "in": "query",
+            "name": "paper",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Paper"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Demo-User",
+            "required": true,
+            "schema": {
+              "title": "X-Demo-User",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PaperSummary"
+                  },
+                  "title": "Response Papers",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Papers"
+      }
+    },
+    "/api/principals": {
+      "get": {
+        "operationId": "principals",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DemoPrincipal"
+                  },
+                  "title": "Response Principals",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Principals"
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Captions: one plain line per step (soft blur-in from the registry, adapted). -->
+<html lang="en" data-composition-id="captions" data-composition-duration="30">
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: "Geist";
+          src: url("assets/fonts/geist.woff2") format("woff2");
+          font-weight: 100 900;
+        }
+        #root {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          font-family: Geist, sans-serif;
+        }
+        .cap {
+          position: absolute;
+          left: 50%;
+          bottom: 132px;
+          transform: translateX(-50%);
+        }
+        .cap span {
+          display: inline-block;
+          padding: 18px 32px;
+          border-radius: 999px;
+          background: rgba(17, 17, 17, 0.9);
+          color: #ffffff;
+          font-size: 42px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          white-space: nowrap;
+          opacity: 0;
+        }
+      </style>
+      <div id="root" data-composition-id="captions" data-duration="30">
+        <div id="c1" class="cap clip" data-start="4.4" data-duration="3.0"><span data-var-text="c1">Ask the research</span></div>
+        <div id="c2" class="cap clip" data-start="7.6" data-duration="3.6"><span data-var-text="c2">Answers cite their papers</span></div>
+        <div id="c3" class="cap clip" data-start="12.3" data-duration="3.7"><span data-var-text="c3">See what the research covers</span></div>
+        <div id="c4" class="cap clip" data-start="16.2" data-duration="3.7"><span data-var-text="c4">See how papers connect</span></div>
+        <div id="c5" class="cap clip" data-start="20.3" data-duration="3.2"><span data-var-text="c5">Every number opens its papers</span></div>
+        <div id="c6" class="cap clip" data-start="23.6" data-duration="3.1"><span data-var-text="c6">Every tag shows its source quote</span></div>
+      </div>
+      <script>
+        (function () {
+          const tl = gsap.timeline({ paused: true });
+          const caps = [
+            ["#c1 span", 4.5, 7.4],
+            ["#c2 span", 7.7, 11.2],
+            ["#c3 span", 12.4, 16.0],
+            ["#c4 span", 16.3, 19.9],
+            ["#c5 span", 20.4, 23.5],
+            ["#c6 span", 23.7, 26.7],
+          ];
+          caps.forEach(([sel, start, end], i) => {
+            tl.fromTo(sel, { opacity: 0, y: 24, filter: "blur(10px)" },
+              { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.6, ease: "expo.out" }, start);
+            tl.to(sel, { opacity: 0, y: -10, filter: "blur(6px)", duration: 0.25, ease: "power3.in" }, end - 0.3);
+          });
+          window.__timelines = window.__timelines || {};
+          window.__timelines["captions"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

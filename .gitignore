@@ -1,0 +1,46 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.pyrefly/
+*.egg-info/
+build/
+dist/
+
+# data: papers are never committed (license); only ids/metadata definitions are
+data/raw/*
+!data/raw/.gitkeep
+data/index/*
+!data/index/.gitkeep
+data/cache/
+eval/reports/
+.deepeval/
+
+# tooling / os
+.DS_Store
+.idea/
+.vscode/
+
+# import-graph caches (grimp / import-linter)
+.grimp_cache/
+.import_linter_cache/
+
+# Dagster instance (run history, partition status)
+.dagster/
+
+# impeccable design skill: installed per developer (npx impeccable install), not vendored
+.claude/skills/impeccable/
+.claude/agents/impeccable-*.md
+
+# demo video renders and HyperFrames caches
+/docs/media/demo/renders/
+
+# personal agent rules
+CLAUDE.local.md

@@ -1,0 +1,76 @@
+default_install_hook_types: [pre-commit, commit-msg]
+
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks          # never commit the gateway key or any other secret
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.19.3
+    hooks:
+      - id: commitizen        # Conventional Commits message check (commit-msg stage)
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+      - id: pyrefly
+        name: pyrefly check
+        entry: uv run pyrefly check
+        language: system
+        pass_filenames: false
+        types: [python]
+      - id: module-view-gate
+        name: import-linter (Module View gate)
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        types: [python]
+      - id: gen-diagrams
+        name: regenerate architecture diagrams from code
+        entry: uv run python tools/gen_diagrams.py
+        language: system
+        pass_filenames: false
+        files: ^(src/|tools/gen_diagrams.py)
+      - id: check-mermaid
+        name: validate Mermaid diagrams (mermaid-cli)
+        entry: tools/check_mermaid.sh
+        language: system
+        pass_filenames: false
+        files: \.md$
+      # --- Python/TypeScript boundary (ADR-0019) ---
+      - id: no-typescript-in-python-tree
+        name: TypeScript/JavaScript only under web/
+        language: fail
+        entry: "TypeScript/JavaScript belongs in web/ (ADR-0019):"
+        files: ^(src|tools|tests)/.*\.(ts|tsx|js|jsx|mjs|cjs)$
+      - id: no-python-in-web
+        name: Python never under web/
+        language: fail
+        entry: "Python belongs in src/, tools/ or tests/ (ADR-0019):"
+        files: ^web/.*\.py$
+      - id: api-contract
+        name: regenerate the HTTP contract (contracts/openapi.json)
+        entry: uv run python tools/gen_api_contract.py
+        language: system
+        pass_filenames: false
+        files: ^(src/|tools/gen_api_contract.py)
+      - id: web-check
+        name: web check (API types fresh, tsc, oxlint, dependency-cruiser)
+        entry: pnpm -C web check
+        language: system
+        pass_filenames: false
+        files: ^(web/|contracts/)
+      - id: no-employer-name
+        name: forbidden wording (local list)
+        entry: tools/check_forbidden_words.sh
+        language: system
+        pass_filenames: false
+        always_run: true

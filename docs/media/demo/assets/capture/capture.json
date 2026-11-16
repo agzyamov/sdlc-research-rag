@@ -1,0 +1,119 @@
+{
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "question": "Which benchmarks are used to evaluate coding agents?",
+  "frames": [
+    {
+      "file": "000.jpg",
+      "note": "chat-empty"
+    },
+    {
+      "file": "001.jpg",
+      "note": "type-1"
+    },
+    {
+      "file": "002.jpg",
+      "note": "type-2"
+    },
+    {
+      "file": "003.jpg",
+      "note": "type-3"
+    },
+    {
+      "file": "004.jpg",
+      "note": "type-4"
+    },
+    {
+      "file": "005.jpg",
+      "note": "type-5"
+    },
+    {
+      "file": "006.jpg",
+      "note": "type-6"
+    },
+    {
+      "file": "007.jpg",
+      "note": "type-7"
+    },
+    {
+      "file": "008.jpg",
+      "note": "type-8"
+    },
+    {
+      "file": "009.jpg",
+      "note": "sent"
+    },
+    {
+      "file": "010.jpg",
+      "note": "answer"
+    },
+    {
+      "file": "011.jpg",
+      "note": "landscape"
+    },
+    {
+      "file": "012.jpg",
+      "note": "graph"
+    },
+    {
+      "file": "013.jpg",
+      "note": "testing"
+    },
+    {
+      "file": "014.jpg",
+      "note": "evidence"
+    }
+  ],
+  "targets": {
+    "composer": {
+      "x": 633,
+      "y": 562.5,
+      "w": 654,
+      "h": 40
+    },
+    "send": {
+      "x": 1259,
+      "y": 618.5,
+      "w": 28,
+      "h": 28
+    },
+    "answer": {
+      "x": 624,
+      "y": 165,
+      "w": 672,
+      "h": 262.5
+    },
+    "tab-landscape": {
+      "x": 64.0625,
+      "y": 60.5,
+      "w": 86.109375,
+      "h": 25
+    },
+    "tab-graph": {
+      "x": 150.171875,
+      "y": 60.5,
+      "w": 128.34375,
+      "h": 25
+    },
+    "phase-testing": {
+      "x": 352,
+      "y": 315,
+      "w": 1183.1875,
+      "h": 28
+    },
+    "why": {
+      "x": 1201,
+      "y": 376.5,
+      "w": 245.140625,
+      "h": 16
+    },
+    "quote": {
+      "x": 1201,
+      "y": 419.5,
+      "w": 362,
+      "h": 32
+    }
+  }
+}

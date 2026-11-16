@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "react",
+    "typescript",
+    "oxc"
+  ],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ],
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "fetch",
+        "message": "Use the generated client in @/lib/api (ADR-0019)."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/components/ui/**",
+        "src/components/assistant-ui/**"
+      ],
+      "rules": {
+        "no-restricted-globals": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "src/lib/api/generated.ts"
+  ]
+}

@@ -1,0 +1,31 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. uv run sdlcrag ingest
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove API keys, gateway URLs and other secrets first.
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: macOS 26 / Ubuntu 24.04, Python 3.12, Node 24, Docker or Colima, LLM backend (anthropic, gateway or local)

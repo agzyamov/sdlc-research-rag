@@ -1,0 +1,28 @@
+model
+  schema 1.1
+
+# License-aware access control for retrieval (docs/architecture/adr/0007-authorization-openfga.md).
+# Retrieval asks OpenFGA `ListObjects(user, can_read, paper)` and turns the result into a
+# Qdrant payload filter on `paper_id` (pre-filter). An optional BatchCheck is the post-filter.
+#
+# Tuples written at ingest time (data/corpus.yaml → license_policy):
+#   collection:open#reader@user:*
+#   collection:restricted#reader@group:internal#member
+#   paper:<arxiv-id>#collection@collection:open|restricted
+
+type user
+
+type group
+  relations
+    define member: [user, group#member]
+
+# A license collection: who may read papers under a given license class.
+type collection
+  relations
+    define reader: [user, user:*, group#member]
+
+type paper
+  relations
+    define collection: [collection]
+    define reader: [user, group#member]          # explicit per-paper sharing
+    define can_read: reader or reader from collection
